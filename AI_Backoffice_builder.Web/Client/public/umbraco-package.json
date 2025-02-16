@@ -1,0 +1,14 @@
+{
+    "$schema": "../../umbraco-package-schema.json",
+    "name": "Chat Header App",
+    "version": "0.1.0",
+    "extensions": [
+      {
+        "type": "headerApp",
+        "alias": "Chat.HeaderApp",
+        "name": "Chat Header App",
+        "kind": "button",
+        "element": "/App_Plugins/Client/client.js"
+      }
+    ]
+  }

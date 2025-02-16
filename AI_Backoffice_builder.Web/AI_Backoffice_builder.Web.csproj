@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <CompressionEnabled>false</CompressionEnabled> <!-- Disable compression. E.g. for umbraco backoffice files. These files should be precompressed by node and not let dotnet handle it -->
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="App_Plugins\Client\umbraco-package.json" />
+    <Content Include="App_Plugins\TiptapExtension\umbraco-package.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App_Plugins\Client\client.js" />
+    <None Include="App_Plugins\Client\client.js.map" />
+    <None Include="App_Plugins\Client\vite.svg" />
+    <None Include="App_Plugins\TiptapExtension\client.js" />
+    <None Include="App_Plugins\TiptapExtension\client.js.map" />
+    <None Include="App_Plugins\TiptapExtension\insert-soft-hyphen.tiptap-api-aLWypCbZ.js" />
+    <None Include="App_Plugins\TiptapExtension\insert-soft-hyphen.tiptap-api-BnE-s1Xk.js" />
+    <None Include="App_Plugins\TiptapExtension\insert-soft-hyphen.tiptap-api-QRGKjbmN.js" />
+    <None Include="App_Plugins\TiptapExtension\insert-soft-hyphen.tiptap-api-QRGKjbmN.js.map" />
+    <None Include="App_Plugins\TiptapExtension\insert-soft-hyphen.tiptap-toolbar-api-DwwA4TH_.js" />
+    <None Include="App_Plugins\TiptapExtension\insert-soft-hyphen.tiptap-toolbar-api-EPlTivSk.js" />
+    <None Include="App_Plugins\TiptapExtension\insert-soft-hyphen.tiptap-toolbar-api-EPlTivSk.js.map" />
+    <None Include="App_Plugins\TiptapExtension\vite.svg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="IdentityModel" Version="7.0.0" />
+    <PackageReference Include="Microsoft.KernelMemory.Core" Version="0.97.250211.1" />
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.37.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Connectors.Ollama" Version="1.37.0-alpha" />
+    <PackageReference Include="Microsoft.SemanticKernel.Connectors.OpenAI" Version="1.37.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Plugins.Core" Version="1.37.0-alpha" />
+    <PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.37.0-alpha" />
+    <PackageReference Include="Umbraco.Cms" Version="15.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Opt-in to app-local ICU to ensure consistent globalization APIs across different platforms -->
+    <PackageReference Include="Microsoft.ICU.ICU4C.Runtime" Version="72.1.0.3" />
+    <RuntimeHostConfigurationOption Include="System.Globalization.AppLocalIcu" Value="72.1.0.3" Condition="$(RuntimeIdentifier.StartsWith('linux')) or $(RuntimeIdentifier.StartsWith('win')) or ('$(RuntimeIdentifier)' == '' and !$([MSBuild]::IsOSPlatform('osx')))" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <!-- Razor files are needed for the backoffice to work correctly -->
+    <CopyRazorGenerateFilesToPublishDirectory>true</CopyRazorGenerateFilesToPublishDirectory>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Remove RazorCompileOnBuild and RazorCompileOnPublish when not using ModelsMode InMemoryAuto -->
+    <RazorCompileOnBuild>false</RazorCompileOnBuild>
+    <RazorCompileOnPublish>false</RazorCompileOnPublish>
+  </PropertyGroup>
+
+</Project>
