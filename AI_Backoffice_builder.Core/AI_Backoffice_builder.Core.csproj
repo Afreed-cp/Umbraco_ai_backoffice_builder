@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <NoWarn>SKEXP0001;SKEXP0010;SKEXP0020;SKEXP0050;SKEXP0070</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.3.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0" />
+  </ItemGroup>
+
+
+	<ItemGroup>
+		<PackageReference Include="DotEnv.Core" Version="3.1.0" />
+		<PackageReference Include="IdentityModel" Version="7.0.0" />
+		<PackageReference Include="Microsoft.KernelMemory.Core" Version="0.97.250211.1" />
+		<PackageReference Include="Microsoft.SemanticKernel" Version="1.37.0" />
+		<PackageReference Include="Microsoft.SemanticKernel.Connectors.Ollama" Version="1.37.0-alpha" />
+		<PackageReference Include="Microsoft.SemanticKernel.Connectors.OpenAI" Version="1.37.0" />
+		<PackageReference Include="Microsoft.SemanticKernel.Plugins.Core" Version="1.37.0-alpha" />
+		<PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.37.0-alpha" />
+		<PackageReference Include="Umbraco.Cms" Version="15.1.1" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <ProjectReference Include="..\AI_Backoffice_builder.Models\AI_Backoffice_builder.Models.csproj" />
+	</ItemGroup>
+
+</Project>

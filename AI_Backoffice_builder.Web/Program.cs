@@ -1,10 +1,10 @@
-using IdentityModel.Client;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Memory;
 using OllamaSharp;
-using AI_Backoffice_builder.Web.Services;
+using AI_Backoffice_builder.Core.Services;
 using Microsoft.SemanticKernel.Embeddings;
-using Microsoft.SemanticKernel.ChatCompletion;
+using DotEnv.Core;
+using AI_Backoffice_builder.Core.Services.Interfaces;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -24,31 +24,32 @@ builder.CreateUmbracoBuilder()
                    .AllowAnyHeader();
         });
     });
-#pragma warning disable SKEXP0001, SKEXP0010, SKEXP0020, SKEXP0050, SKEXP0070 
 
-builder.Services.AddSingleton<IMemoryStore>(new VolatileMemoryStore());
-builder.Services.AddSingleton<ISemanticTextMemory>(sp => 
-{
-    var store = sp.GetRequiredService<IMemoryStore>();
-    var embedder = new OllamaApiClient("", "chroma/all-minilm-l6-v2-f32")
-        .AsTextEmbeddingGenerationService();
-    return new SemanticTextMemory(store, embedder);
-});
-builder.Services.AddHttpClient();
-builder.Services.AddSingleton<IBackOfficeAuthService, BackOfficeAuthService>();
 
-builder.Services.AddSingleton(sp =>
-{
-    var builder = Kernel.CreateBuilder();
 
-    builder.Services.AddSingleton<IBackOfficeAuthService>(sp.GetRequiredService<IBackOfficeAuthService>());
-    builder.Plugins.AddFromType<LightsPlugin>();
-    builder.Plugins.AddFromType<DocumentTypePlugin>();
-    builder.Services.AddOllamaChatCompletion("llama3-groq-tool-use:latest", new Uri(""));
-    return builder.Build();
-});
+//builder.Services.AddSingleton<IMemoryStore>(new VolatileMemoryStore());
+//builder.Services.AddSingleton<ISemanticTextMemory>(sp => 
+//{
+//    var store = sp.GetRequiredService<IMemoryStore>();
+//    var embedder = new OllamaApiClient(reader["OLLAMA_API_URL"], "chroma/all-minilm-l6-v2-f32")
+//        .AsTextEmbeddingGenerationService();
+//    return new SemanticTextMemory(store, embedder);
+//});
 
-builder.Services.AddSingleton<SemanticKernelService>();
+
+//builder.Services.AddSingleton(sp =>
+//{
+//    var builder = Kernel.CreateBuilder();
+
+//    builder.Services.AddSingleton<IBackOfficeAuthService>(sp.GetRequiredService<IBackOfficeAuthService>());
+//    builder.Services.AddSingleton<IHttpClientFactory>(sp.GetRequiredService<IHttpClientFactory>());
+//    builder.Plugins.AddFromType<LightsPlugin>();
+//    builder.Plugins.AddFromType<DocumentTypePlugin>();
+//    //builder.Services.AddOllamaChatCompletion("llama3-groq-tool-use:latest", new Uri(reader["OLLAMA_API_URL"]));
+//    return builder.Build();
+//});
+
+
 
 WebApplication app = builder.Build();
 
