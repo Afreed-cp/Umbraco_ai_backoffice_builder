@@ -23,6 +23,7 @@ This project is an AI-powered backoffice builder for the open-source Umbraco CMS
    dotnet build
    ```
 4. **Configure environment variables:** Create a `.env` file in the root directory with necessary configurations.
+   - OLLAMA_API_URL
 
 ### Running the Application
 1. **Start Umbraco CMS:**
