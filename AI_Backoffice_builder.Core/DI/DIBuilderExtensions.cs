@@ -25,7 +25,11 @@ namespace AI_Backoffice_builder.Core.DI
         {
             new EnvLoader().Load();
             var reader = new EnvReader();
+            builder.Services.AddHttpClient();
+            builder.Services.AddSingleton<IBackOfficeAuthService, BackOfficeAuthService>();
             builder.Services.AddSingleton<IMemoryStore>(new VolatileMemoryStore());
+           
+            #region Embedding
             builder.Services.AddSingleton<ISemanticTextMemory>(sp =>
             {
                 var store = sp.GetRequiredService<IMemoryStore>();
@@ -33,23 +37,29 @@ namespace AI_Backoffice_builder.Core.DI
                     .AsTextEmbeddingGenerationService();
                 return new SemanticTextMemory(store, embedder);
             });
-            builder.Services.AddHttpClient();
-            builder.Services.AddSingleton<IBackOfficeAuthService, BackOfficeAuthService>();
+            #endregion
             //builder.Services.AddSingleton<IChatHistoryManager, ChatHistoryManager>();
-
+            
+            #region ChatCompletionWithOllama
             builder.Services.AddSingleton(sp =>
             {
                 var builder = Kernel.CreateBuilder();
 
                 builder.Services.AddSingleton<IBackOfficeAuthService>(sp.GetRequiredService<IBackOfficeAuthService>());
                 builder.Services.AddSingleton<IHttpClientFactory>(sp.GetRequiredService<IHttpClientFactory>());
+                
+                //plugins
                 builder.Plugins.AddFromType<LightsPlugin>();
                 builder.Plugins.AddFromType<DocumentTypePlugin>();
+                
+                
+                
                 builder.Services.AddOllamaChatCompletion("llama3-groq-tool-use:latest", new Uri(reader["OLLAMA_API_URL"]));
                 return builder.Build();
             });
 
             builder.Services.AddSingleton<SemanticKernelService>();
+            #endregion
 
             return builder;
         }

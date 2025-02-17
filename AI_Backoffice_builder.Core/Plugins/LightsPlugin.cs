@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Text.Json.Serialization;
+using AI_Backoffice_builder.Models.Models;
 using Microsoft.SemanticKernel;
 
 public class LightsPlugin
@@ -35,16 +36,4 @@ public class LightsPlugin
 
         return light;
     }
-}
-
-public class LightModel
-{
-    [JsonPropertyName("id")]
-    public int Id { get; set; }
-
-    [JsonPropertyName("name")]
-    public string Name { get; set; }
-
-    [JsonPropertyName("is_on")]
-    public bool? IsOn { get; set; }
 }
