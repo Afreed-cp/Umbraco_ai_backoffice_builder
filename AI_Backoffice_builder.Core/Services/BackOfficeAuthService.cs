@@ -38,7 +38,7 @@ public class BackOfficeAuthService : IBackOfficeAuthService
 
         var formContent = new FormUrlEncodedContent(new[]
         {
-            new KeyValuePair<string, string>("client_id", "umbraco-back-office-testapiuser"),
+            new KeyValuePair<string, string>("client_id", "umbraco-back-office-testingapi"),
             new KeyValuePair<string, string>("client_secret", "1234567890"),
             new KeyValuePair<string, string>("grant_type", "client_credentials")
         });

@@ -10,17 +10,27 @@ public class DocumentTypePlugin
 {
     private readonly IBackOfficeAuthService _authService;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly Func<IDataTypeServiceGetter> _dataTypeServiceGetterFactory;
 
-    public DocumentTypePlugin(IBackOfficeAuthService authService, IHttpClientFactory httpClientFactory)
+    public DocumentTypePlugin(
+        IBackOfficeAuthService authService, 
+        IHttpClientFactory httpClientFactory,
+        Func<IDataTypeServiceGetter> dataTypeServiceGetterFactory)
     {
         _authService = authService;
         _httpClientFactory = httpClientFactory;
+        _dataTypeServiceGetterFactory = dataTypeServiceGetterFactory;
     }
 
-    [KernelFunction("create_document_type")]
-    [Description("Creates a document type for umbraco backoffice")]
-    public async Task<string> CreateDocumentType(string name)
-    {
+[KernelFunction("create_document_type")]
+[Description(@"Creates a document type for Umbraco backoffice with custom properties.
+Property definitions should be provided as comma-separated pairs of name and type, like: ""Property Name:type"".
+Available property types: textstring, textarea, richtexteditor, numeric
+Example: ""Page Title:textstring,Main Content:richtexteditor,Summary:textarea,Order:numeric""")]
+public async Task<string> CreateDocumentType(
+    [Description("The name of the document type to create")] string name,
+    [Description("Comma-separated list of property definitions in format 'PropertyName:propertyType'")] string propertyDefinitions = "")
+{
         var token = await _authService.GetTokenAsync();
         var client = _httpClientFactory.CreateClient();
         
@@ -31,6 +41,49 @@ public class DocumentTypePlugin
                     ? word.ToLower() 
                     : char.ToUpper(word[0]) + word.Substring(1).ToLower())
         );
+
+        var contentContainer = new ContainerDefinitionDto
+        {
+            Name = "Content",
+            Type = "Tab",
+            SortOrder = 0
+        };
+
+        var propertyList = new List<PropertyDto>();
+        if (!string.IsNullOrEmpty(propertyDefinitions))
+        {
+            var propertyDefs = propertyDefinitions.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            var sortOrder = 0;
+            foreach (var propDef in propertyDefs)
+            {
+                // Expected format: "propertyName:propertyType"
+                var parts = propDef.Trim().Split(':');
+                if (parts.Length != 2) continue;
+
+                var propertyName = parts[0].Trim();
+                var propertyType = parts[1].Trim().ToLower();
+                
+                var dataTypeId = await GetDataTypeId(propertyType);
+                if (dataTypeId != Guid.Empty)
+                {
+                    var propertyAlias = string.Concat(
+                        propertyName.Split(new[] { ' ', '-', '_', '.', ':', '/', '\\' }, StringSplitOptions.RemoveEmptyEntries)
+                            .Select((word, index) => index == 0 
+                                ? word.ToLower() 
+                                : char.ToUpper(word[0]) + word.Substring(1).ToLower())
+                    );
+
+                    propertyList.Add(new PropertyDto
+                    {
+                        Container = new ContainerDto { Id = contentContainer.Id },
+                        SortOrder = sortOrder++,
+                        Alias = propertyAlias,
+                        Name = propertyName,
+                        DataType = new DataTypeDto { Id = dataTypeId }
+                    });
+                }
+            }
+        }
         
         var request = new CreateDocumentTypeRequest
         {
@@ -41,7 +94,9 @@ public class DocumentTypePlugin
             VariesByCulture = false,
             VariesBySegment = false,
             IsElement = false,
-            Id = Guid.NewGuid()
+            Id = Guid.NewGuid(),
+            Properties = propertyList,
+            Containers = new List<ContainerDefinitionDto> { contentContainer }
         };
 
         var content = JsonSerializer.Serialize(request);
@@ -60,4 +115,9 @@ public class DocumentTypePlugin
         return $"Document type {name} created successfully";
     }
 
+    private async Task<Guid> GetDataTypeId(string propertyType)
+    {
+        var dataTypeService = _dataTypeServiceGetterFactory();
+        return await dataTypeService.GetDataTypeUniqueIdByAlias(propertyType);
+    }
 }

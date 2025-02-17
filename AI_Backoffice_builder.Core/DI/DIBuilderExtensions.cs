@@ -1,5 +1,6 @@
 ﻿using AI_Backoffice_builder.Core.Services;
 using AI_Backoffice_builder.Core.Services.Interfaces;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using DotEnv.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
@@ -7,6 +8,7 @@ using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.Ollama;
 using Microsoft.SemanticKernel.Embeddings;
 using Microsoft.SemanticKernel.Memory;
+using NPoco;
 using OllamaSharp;
 using System;
 using System.Collections.Generic;
@@ -23,6 +25,14 @@ namespace AI_Backoffice_builder.Core.DI
     {
         public static IUmbracoBuilder RegisterCustomServices(this IUmbracoBuilder builder)
         {
+            builder.Services.AddScoped<IDatabase>(sp =>
+            {
+                var connection = new System.Data.SQLite.SQLiteConnection("Data Source=|DataDirectory|/Umbraco.sqlite.db");
+                var db = new Database(connection, DatabaseType.SQLite);
+                return db;
+            });
+            builder.Services.AddScoped<IDataTypeServiceGetter, DataTypeService>();
+
             new EnvLoader().Load();
             var reader = new EnvReader();
             builder.Services.AddHttpClient();
@@ -43,11 +53,17 @@ namespace AI_Backoffice_builder.Core.DI
             #region ChatCompletionWithOllama
             builder.Services.AddSingleton(sp =>
             {
+                var scopeFactory = sp.GetRequiredService<IServiceScopeFactory>();
                 var builder = Kernel.CreateBuilder();
 
                 builder.Services.AddSingleton<IBackOfficeAuthService>(sp.GetRequiredService<IBackOfficeAuthService>());
                 builder.Services.AddSingleton<IHttpClientFactory>(sp.GetRequiredService<IHttpClientFactory>());
-                
+                builder.Services.AddSingleton<Func<IDataTypeServiceGetter>>(() =>
+                {
+                    // Create a new scope each time you need to resolve the service.
+                    using var scope = scopeFactory.CreateScope();
+                    return scope.ServiceProvider.GetRequiredService<IDataTypeServiceGetter>();
+                });
                 //plugins
                 builder.Plugins.AddFromType<LightsPlugin>();
                 builder.Plugins.AddFromType<DocumentTypePlugin>();
