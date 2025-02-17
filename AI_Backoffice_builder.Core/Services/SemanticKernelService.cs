@@ -1,23 +1,22 @@
-using AI_Backoffice_builder.Core.Services.Interfaces;
-using Microsoft.SemanticKernel;
+﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Microsoft.SemanticKernel.Memory;
 using OllamaSharp;
 
 namespace AI_Backoffice_builder.Core.Services;
-
-public class SemanticKernelService : ISemanticKernelService
+#pragma warning disable SKEXP0001, SKEXP0010, SKEXP0020, SKEXP0050, SKEXP0070 
+public class SemanticKernelService
 {
     private readonly ISemanticTextMemory _memory;
     private readonly Kernel _kernel;
-    private readonly IChatHistoryManager _chatHistory;
-    
-    public SemanticKernelService(ISemanticTextMemory memory, Kernel kernel, IChatHistoryManager chatHistory)
+    private readonly ChatHistory _chatHistory;
+
+    public SemanticKernelService(ISemanticTextMemory memory, Kernel kernel)
     {
         _memory = memory;
         _kernel = kernel;
-        _chatHistory = chatHistory;
+        _chatHistory = new ChatHistory();
     }
 
     public async Task SaveInformation(string collection, string text, string id, string description)
@@ -39,19 +38,19 @@ public class SemanticKernelService : ISemanticKernelService
     public async Task<string> ChatAsync(string userMessage)
     {
         _chatHistory.AddUserMessage(userMessage);
-         OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new()
-            {
-                ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions
-            };
+        OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new()
+        {
+            FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
+        };
         var chatCompletionService = _kernel.GetRequiredService<IChatCompletionService>();
         var result = await chatCompletionService.GetChatMessageContentsAsync(
-            _chatHistory.GetSemanticKernelHistory(),
+            _chatHistory,
             executionSettings: openAIPromptExecutionSettings,
             kernel: _kernel);
 
         var response = result.FirstOrDefault()?.Content ?? "No response generated.";
         _chatHistory.AddAssistantMessage(response);
-        
+
         return response;
     }
 

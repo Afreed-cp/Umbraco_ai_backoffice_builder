@@ -4,6 +4,7 @@ using Microsoft.SemanticKernel.ChatCompletion;
 
 namespace AI_Backoffice_builder.Core.Services;
 
+//issue: when used in semanticKernelService, tools are not used
 public class ChatHistoryManager : IChatHistoryManager
 {
     private readonly ChatHistory _history;
@@ -15,12 +16,12 @@ public class ChatHistoryManager : IChatHistoryManager
         _history = new ChatHistory();
         _persistentHistory = new List<ChatMessage>();
         _maxHistorySize = maxHistorySize;
-        
+
         // Add system message
         AddSystemMessage("""
-            You are a chat bot for the open-source Umbraco CMS called Umbraco Copilot. 
-            You can perform tasks and answer questions about entities within the CMS. 
-            You can generate placeholder text based on existing content within the CMS. 
+            You are a chat bot for the open-source Umbraco CMS called Umbraco Copilot.
+            You can perform tasks and answer questions about entities within the CMS using the available functions.
+            You can generate placeholder text based on existing content within the CMS.
             You must not generate content or answer questions based on general knowledge.
             """);
     }
@@ -51,9 +52,9 @@ public class ChatHistoryManager : IChatHistoryManager
         _persistentHistory.Clear();
         // Re-add system message after clearing
         AddSystemMessage("""
-            You are a chat bot for the open-source Umbraco CMS called Umbraco Copilot. 
-            You can perform tasks and answer questions about entities within the CMS. 
-            You can generate placeholder text based on existing content within the CMS. 
+            You are a chat bot for the open-source Umbraco CMS called Umbraco Copilot.
+            You can perform tasks and answer questions about entities within the CMS using the available functions.
+            You can generate placeholder text based on existing content within the CMS.
             You must not generate content or answer questions based on general knowledge.
             """);
     }

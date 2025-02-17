@@ -25,17 +25,6 @@ namespace AI_Backoffice_builder.Core.DI
         {
             new EnvLoader().Load();
             var reader = new EnvReader();
-            builder.Services.AddHttpClient();
-            builder.Services.AddSingleton<IBackOfficeAuthService, BackOfficeAuthService>();
-            builder.Services.AddSingleton<ISemanticKernelService,SemanticKernelService>();
-            builder.Services.AddSingleton<IChatHistoryManager, ChatHistoryManager>();
-
-            builder.Services.AddSingleton<IChatCompletionService>(services =>
-            {
-                return new OllamaApiClient(reader["OLLAMA_API_URL"], "llama3-groq-tool-use:latest").AsChatCompletionService();
-            });
-
-
             builder.Services.AddSingleton<IMemoryStore>(new VolatileMemoryStore());
             builder.Services.AddSingleton<ISemanticTextMemory>(sp =>
             {
@@ -44,13 +33,23 @@ namespace AI_Backoffice_builder.Core.DI
                     .AsTextEmbeddingGenerationService();
                 return new SemanticTextMemory(store, embedder);
             });
+            builder.Services.AddHttpClient();
+            builder.Services.AddSingleton<IBackOfficeAuthService, BackOfficeAuthService>();
+            //builder.Services.AddSingleton<IChatHistoryManager, ChatHistoryManager>();
 
-            builder.Services.AddTransient(services =>
+            builder.Services.AddSingleton(sp =>
             {
-                var kernel = new Kernel(services);
+                var builder = Kernel.CreateBuilder();
 
-                return kernel;
+                builder.Services.AddSingleton<IBackOfficeAuthService>(sp.GetRequiredService<IBackOfficeAuthService>());
+                builder.Services.AddSingleton<IHttpClientFactory>(sp.GetRequiredService<IHttpClientFactory>());
+                builder.Plugins.AddFromType<LightsPlugin>();
+                builder.Plugins.AddFromType<DocumentTypePlugin>();
+                builder.Services.AddOllamaChatCompletion("llama3-groq-tool-use:latest", new Uri(reader["OLLAMA_API_URL"]));
+                return builder.Build();
             });
+
+            builder.Services.AddSingleton<SemanticKernelService>();
 
             return builder;
         }

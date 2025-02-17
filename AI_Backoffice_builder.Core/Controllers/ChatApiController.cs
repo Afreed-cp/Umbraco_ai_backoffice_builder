@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using AI_Backoffice_builder.Core.Services.Interfaces;
+using AI_Backoffice_builder.Core.Services;
 
 namespace AI_Backoffice_builder.Core.Controllers
 {
@@ -7,9 +8,9 @@ namespace AI_Backoffice_builder.Core.Controllers
     [Route("api/[controller]")]
     public class ChatApiController : Controller
     {
-        private readonly ISemanticKernelService _semanticKernel;
+        private readonly SemanticKernelService _semanticKernel;
 
-        public ChatApiController(ISemanticKernelService semanticKernel)
+        public ChatApiController(SemanticKernelService semanticKernel)
         {
             _semanticKernel = semanticKernel;
         }
