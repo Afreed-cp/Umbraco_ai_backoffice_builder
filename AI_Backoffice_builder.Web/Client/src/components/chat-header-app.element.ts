@@ -1,65 +1,58 @@
 import type { CSSResultGroup } from '@umbraco-cms/backoffice/external/lit';
-import { css, html, customElement, state } from '@umbraco-cms/backoffice/external/lit';
+import { css, html, customElement } from '@umbraco-cms/backoffice/external/lit';
 import { UmbHeaderAppButtonElement } from '@umbraco-cms/backoffice/components';
 import './chatbot-component';
-
+import { render } from '@umbraco-cms/backoffice/external/lit';
 const elementName = 'umb-chat-header-app';
 
 @customElement(elementName)
 export class UmbChatHeaderAppElement extends UmbHeaderAppButtonElement {
-  @state()
-  private _popoverOpen = false;
+  
+  #openChatSidebar() {
+    const modalHtml = html`
+      <uui-modal-sidebar size="small">
+        <div class="sidebar-container">
+          <uui-box headline="Umbraco BOT">
+            <chatbot-component></chatbot-component>
+          </uui-box>
+        </div>
+      </uui-modal-sidebar>
+    `;
 
-  #onPopoverToggle(event: any) {
-    this._popoverOpen = event.newState === 'open';
-    // Force update the chatbot component
-    const chatbot = this.renderRoot.querySelector('chatbot-component');
-    if (chatbot) {
-      (chatbot as any).isOpen = this._popoverOpen;
-    }
+    const container = document.createElement('uui-modal-container');
+    container.innerHTML = '';
+
+    render(modalHtml, container);
+    document.body.appendChild(container);
   }
 
   override render() {
     return html`
       <uui-button 
-        id="chat-button"
-        popovertarget="chat-menu-popover" 
         look="primary" 
         label="Chat" 
-        compact>
+        compact
+        @click=${this.#openChatSidebar}>
         <uui-icon name="icon-chat"></uui-icon>
       </uui-button>
-
-      <uui-popover-container 
-        id="chat-menu-popover" 
-        placement="bottom-end"
-        @toggle=${this.#onPopoverToggle}>
-        <umb-popover-layout>
-          <uui-box>
-            <chatbot-component .isOpen=${this._popoverOpen}></chatbot-component>
-          </uui-box>
-        </umb-popover-layout>
-      </uui-popover-container>
     `;
   }
 
   static override styles: CSSResultGroup = [
     UmbHeaderAppButtonElement.styles,
     css`
-      uui-popover-container {
-        width: 350px;
+      .sidebar-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        background: var(--uui-color-surface);
       }
 
-      umb-popover-layout {
-        height: 600px;
-        max-height: 90vh;
-      }
-      
       uui-box {
-        height: 100%;
-      }
-      
-      chatbot-component {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        margin: 0;
         height: 100%;
       }
     `

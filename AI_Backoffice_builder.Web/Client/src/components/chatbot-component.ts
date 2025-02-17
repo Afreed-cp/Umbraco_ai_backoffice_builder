@@ -1,11 +1,10 @@
 import { LitElement, css, html } from 'lit';
+import { customElement, state } from 'lit/decorators.js';
 
 interface Message {
   sender: string;
   text: string;
 }
-import { customElement, property, state } from 'lit/decorators.js';
-import { chatbotStyles } from './chatbot-styles';
 
 @customElement('chatbot-component')
 export class ChatbotComponent extends LitElement {
@@ -17,64 +16,64 @@ export class ChatbotComponent extends LitElement {
   @state()
   private userInput: string = '';
 
-  @property({ type: Boolean })
-  isOpen: boolean = false;
-
   private _chatBody?: HTMLElement;
 
-  static styles = [
-    chatbotStyles,
-    css`
-      :host {
-        display: block;
-        height: 100%;
-        position: relative;
-      }
+  static styles = css`
+    :host {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0; /* Important for nested flex containers */
+    }
 
-      .chatbot-container {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        display: flex;
-        flex-direction: column;
-      }
+    .chatbot-container {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0; /* Important for nested flex containers */
+    }
 
-      .chatbot-body {
-        flex: 1 1 auto;
-        overflow-y: auto;
-        padding: 1rem;
-        background: var(--uui-color-surface);
-        height: 500px;
-        min-height: 470px;
-      }
+    .chatbot-body {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      padding: 1rem;
+      background: var(--uui-color-surface);
+      min-height: 0; /* Important for nested flex containers */
+    }
 
-      .chat-message {
-        padding: 8px;
-        margin-bottom: 5px;
-        border-radius: 5px;
-      }
+    .chat-message {
+      padding: 8px;
+      margin-bottom: 5px;
+      border-radius: 5px;
+      word-break: break-word;
+    }
 
-      .user-message {
-        background-color: var(--uui-color-positive-alt);
-        text-align: right;
-      }
+    .user-message {
+      background-color: var(--uui-color-positive-alt);
+      text-align: right;
+    }
 
-      .bot-message {
-        background-color: var(--uui-color-surface-alt);
-      }
+    .bot-message {
+      background-color: var(--uui-color-surface-alt);
+    }
 
-      .chatbot-footer {
-        flex: 0 0 auto;
-        display: flex;
-        gap: 0.5rem;
-        padding: 1rem;
-        border-top: 1px solid var(--uui-color-divider);
-        background: var(--uui-color-surface);
-      }
-    `
-  ];
+    .chatbot-footer {
+      flex: 0 0 auto;
+      display: flex;
+      gap: 0.5rem;
+      padding: 1rem;
+      border-top: 1px solid var(--uui-color-divider);
+      background: var(--uui-color-surface);
+      position: sticky;
+      bottom: 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    uui-input {
+      flex: 1;
+    }
+  `;
 
   firstUpdated() {
     this._chatBody = this.shadowRoot?.querySelector('.chatbot-body') as HTMLElement;
