@@ -4,7 +4,7 @@ const t = [
     type: "headerApp",
     alias: "Umb.HeaderApp.Chat",
     name: "Chat Header App",
-    element: () => import("./chat-header-app.element-BDTksd5t.js"),
+    element: () => import("./chat-header-app.element-p9XfPCTu.js"),
     weight: 500
   }
 ];

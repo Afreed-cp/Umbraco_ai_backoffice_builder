@@ -9,12 +9,13 @@ interface Message {
 @customElement('chatbot-component')
 export class ChatbotComponent extends LitElement {
   @state()
-  private messages: Message[] = [
-    { sender: 'bot', text: 'Hello! How can I assist you today?' }
-  ];
+  private messages: Message[] = [];
 
   @state()
   private userInput: string = '';
+
+  @state()
+  private isLoading: boolean = false;
 
   private _chatBody?: HTMLElement;
 
@@ -47,6 +48,19 @@ export class ChatbotComponent extends LitElement {
       margin-bottom: 5px;
       border-radius: 5px;
       word-break: break-word;
+      animation: fadeIn 0.3s ease-in;
+      opacity: 1;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .user-message {
@@ -74,10 +88,25 @@ export class ChatbotComponent extends LitElement {
     uui-input {
       flex: 1;
     }
+
+    .loader-container {
+      display: flex;
+      justify-content: center;
+      margin: 1rem 0;
+    }
   `;
 
   firstUpdated() {
     this._chatBody = this.shadowRoot?.querySelector('.chatbot-body') as HTMLElement;
+    
+    // Simulate initial bot message after a short delay
+    this.isLoading = true;
+    setTimeout(() => {
+      this.messages = [...this.messages, 
+        { sender: 'bot', text: 'Hello! How can I assist you today?' }
+      ];
+      this.isLoading = false;
+    }, 500);
   }
 
   updated(changedProperties: Map<string, any>) {
@@ -97,6 +126,11 @@ export class ChatbotComponent extends LitElement {
               </div>
             `
           )}
+          ${this.isLoading ? html`
+            <div class="loader-container">
+              <uui-loader style="color: #006eff"></uui-loader>
+            </div>
+          ` : ''}
         </div>
         <div class="chatbot-footer">
           <uui-input
@@ -129,14 +163,17 @@ export class ChatbotComponent extends LitElement {
   private async _sendMessage() {
     if (this.userInput.trim()) {
         this.messages = [...this.messages, { sender: 'user', text: this.userInput }];
-        debugger
+        const messageText = this.userInput;
+        this.userInput = '';
+        this.isLoading = true;
+        
         try {
             const response = await fetch('/api/chatapi/send', {
               method: 'POST',
               headers: {
                   'Content-Type': 'application/json',
               },
-              body: JSON.stringify({ message : this.userInput })
+              body: JSON.stringify({ message: messageText })
           });
 
             const data = await response.json();
@@ -146,9 +183,9 @@ export class ChatbotComponent extends LitElement {
             this.messages = [...this.messages, 
                 { sender: 'bot', text: 'Sorry, there was an error processing your request.' }
             ];
+        } finally {
+            this.isLoading = false;
         }
-        
-        this.userInput = '';
     }
   }
 
