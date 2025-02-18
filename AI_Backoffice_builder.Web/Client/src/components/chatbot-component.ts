@@ -29,9 +29,9 @@ export class ChatbotComponent extends LitElement {
     .chatbot-container {
       display: flex;
       flex-direction: column;
-       min-height:91vh;
-    flex-wrap: wrap;
-    align-content: space-between;
+      min-height:91vh;
+      flex-wrap: wrap;
+      align-content: space-between;    
     }
 
     .chatbot-body {

@@ -687,9 +687,9 @@ O.styles = vt`
     .chatbot-container {
       display: flex;
       flex-direction: column;
-       min-height: 82vh;
-    flex-wrap: wrap;
-    align-content: space-between;
+      min-height:91vh;
+      flex-wrap: wrap;
+      align-content: space-between;    
     }
 
     .chatbot-body {
@@ -805,4 +805,4 @@ export {
   j as UmbChatHeaderAppElement,
   j as element
 };
-//# sourceMappingURL=chat-header-app.element-C2Q3LFv3.js.map
+//# sourceMappingURL=chat-header-app.element-BDTksd5t.js.map
