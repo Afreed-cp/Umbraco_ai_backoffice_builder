@@ -1,4 +1,6 @@
-﻿using AI_Backoffice_builder.Core.Services;
+﻿using AI_Backoffice_builder.Core.Filters;
+using AI_Backoffice_builder.Core.Plugins;
+using AI_Backoffice_builder.Core.Services;
 using AI_Backoffice_builder.Core.Services.Interfaces;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using DotEnv.Core;
@@ -56,19 +58,22 @@ namespace AI_Backoffice_builder.Core.DI
                 var scopeFactory = sp.GetRequiredService<IServiceScopeFactory>();
                 var builder = Kernel.CreateBuilder();
 
+
                 builder.Services.AddSingleton<IBackOfficeAuthService>(sp.GetRequiredService<IBackOfficeAuthService>());
                 builder.Services.AddSingleton<IHttpClientFactory>(sp.GetRequiredService<IHttpClientFactory>());
+                builder.Services.AddSingleton<IContentService>(sp.GetRequiredService<IContentService>());
+                builder.Services.AddSingleton<IFunctionInvocationFilter, UmbracoEntityResultFilter>();
                 builder.Services.AddSingleton<Func<IDataTypeServiceGetter>>(() =>
                 {
                     // Create a new scope each time you need to resolve the service.
                     using var scope = scopeFactory.CreateScope();
                     return scope.ServiceProvider.GetRequiredService<IDataTypeServiceGetter>();
                 });
+
                 //plugins
                 builder.Plugins.AddFromType<LightsPlugin>();
                 builder.Plugins.AddFromType<DocumentTypePlugin>();
-                
-                
+                builder.Plugins.AddFromType<ContentPlugin>();
                 
                 builder.Services.AddOllamaChatCompletion("llama3-groq-tool-use:latest", new Uri(reader["OLLAMA_API_URL"]));
                 return builder.Build();

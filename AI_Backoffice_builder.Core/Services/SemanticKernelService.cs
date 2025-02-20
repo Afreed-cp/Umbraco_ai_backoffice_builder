@@ -1,4 +1,5 @@
-﻿using Microsoft.SemanticKernel;
+﻿using AI_Backoffice_builder.Core.Filters;
+using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Microsoft.SemanticKernel.Memory;
@@ -17,6 +18,7 @@ public class SemanticKernelService
         _memory = memory;
         _kernel = kernel;
         _chatHistory = new ChatHistory();
+        _kernel.FunctionInvocationFilters.Add(new UmbracoEntityResultFilter());
     }
 
     public async Task SaveInformation(string collection, string text, string id, string description)
@@ -42,6 +44,7 @@ public class SemanticKernelService
         {
             FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
         };
+
         var chatCompletionService = _kernel.GetRequiredService<IChatCompletionService>();
         var result = await chatCompletionService.GetChatMessageContentsAsync(
             _chatHistory,
