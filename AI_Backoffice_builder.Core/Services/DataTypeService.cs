@@ -2,6 +2,7 @@ using NPoco;
 using System.Data;
 using AI_Backoffice_builder.Core.Services.Interfaces;
 using AI_Backoffice_builder.Core.Models.Database;
+using AI_Backoffice_builder.Core.Constants;
 
 namespace AI_Backoffice_builder.Core.Services
 {
@@ -16,17 +17,7 @@ namespace AI_Backoffice_builder.Core.Services
 
         public async Task<Guid> GetDataTypeUniqueIdByAlias(string alias)
         {
-            var mapping = new Dictionary<string, string>
-            {
-                { "textstring", "Umbraco.TextBox" },
-                { "textarea", "Umbraco.TextArea" },
-                { "richtexteditor", "Umbraco.TipTap" },  // Updated to TipTap
-                { "numeric", "Umbraco.Integer" },
-                { "multipletextstring", "Umbraco.MultipleTextstring" },
-                { "boolean", "Umbraco.TrueFalse" }
-            };
-
-            if (!mapping.TryGetValue(alias.ToLower(), out string editorAlias))
+            if (!DataTypeConstants.PropertyEditorAliasMapping.TryGetValue(alias.ToLower(), out string editorAlias))
             {
                 return Guid.Empty;
             }

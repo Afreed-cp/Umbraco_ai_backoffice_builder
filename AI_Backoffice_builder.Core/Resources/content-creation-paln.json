@@ -1,0 +1,24 @@
+{
+  "name": "CreateDocumentTypePlan",
+  "description": "A plan to create a document type in Umbraco backoffice with properties provided by the LLM",
+  "steps": [
+    {
+      "name": "GetDocumentTypeName",
+      "action": "LLM.GetDocumentTypeName",
+      "parameters": {}
+    },
+    {
+      "name": "GetPropertyDefinitions",
+      "action": "LLM.GetPropertyDefinitions",
+      "parameters": {}
+    },
+    {
+      "name": "CreateDocumentType",
+      "action": "DocumentTypePlugin.create_document_type",
+      "parameters": {
+        "name": "{{GetDocumentTypeName.result}}",
+        "propertyDefinitions": "{{GetPropertyDefinitions.result}}"
+      }
+    }
+  ]
+}
